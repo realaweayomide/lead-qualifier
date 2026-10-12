@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lead Qualifier — research, score and route inbound leads</title>
+<meta name="description" content="An agent that researches an inbound lead's company, scores the fit with evidence, and routes it. Shows its working.">
+<meta property="og:title" content="Lead Qualifier — an agent that does its homework">
+<meta property="og:description" content="Researches the company, scores the fit with evidence, routes the lead. Shows every step.">
+<meta property="og:image" content="https://realaweayomide.github.io/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b0d12;--card:#141824;--soft:#11141b;--line:#232838;--text:#e8ebf2;--muted:#9aa3b5;
+    --accent:#6ee7b7;--accent-2:#60a5fa;--warn:#fbbf24;--err:#fca5a5;
+    --font:'Inter',system-ui,-apple-system,sans-serif;--display:'Space Grotesk',var(--font)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6;min-height:100vh;
+    background-image:radial-gradient(900px 500px at 85% -10%,rgba(110,231,183,.12),transparent 60%);background-attachment:fixed}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 22px 70px}
+  h1{font-family:var(--display);font-size:clamp(26px,5vw,36px);margin:0 0 8px;font-weight:700}
+  h1 .g{color:var(--accent)}
+  .sub{color:var(--muted);font-size:16.5px;margin:0 0 6px;max-width:650px}
+  .note{color:var(--muted);font-size:13.5px;margin:0 0 24px}
+  .note b{color:var(--accent)}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
+  .panel h2{font-family:var(--display);font-size:12px;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);margin:16px 0 10px;font-weight:600}
+  .panel h2:first-child{margin-top:0}
+  label{display:block;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:0 0 6px;font-weight:600}
+  input,textarea{width:100%;background:var(--soft);color:var(--text);border:1px solid var(--line);border-radius:9px;
+    padding:11px 13px;font-family:var(--font);font-size:14.5px;margin-bottom:12px;resize:vertical}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:680px){.two{grid-template-columns:1fr}}
+  button{font:inherit;font-size:14px;font-weight:600;padding:11px 18px;border-radius:9px;border:1px solid var(--line);
+    background:var(--card);color:var(--text);cursor:pointer;transition:.15s}
+  button:hover:not(:disabled){transform:translateY(-1px);border-color:var(--accent)}
+  button.primary{background:var(--accent);color:#07120d;border-color:transparent}
+  button:disabled{opacity:.45;transform:none}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .out{display:none}.out.show{display:block}
+  .verdict{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:16px}
+  .score{font-family:var(--display);font-size:46px;font-weight:700;line-height:1}
+  .tier{font-family:var(--display);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:999px;border:1px solid}
+  .tier.hot{color:var(--accent);border-color:#1f4538;background:#0f1d18}
+  .tier.warm{color:var(--warn);border-color:#4a3c1a;background:#1a1710}
+  .tier.cold{color:var(--accent-2);border-color:#1e3a5f;background:#0e1620}
+  .tier.disqualified{color:var(--err);border-color:#4a1f1f;background:#1a1010}
+  .route{color:var(--muted);font-size:14px}.route b{color:var(--text)}
+  ul{margin:0 0 14px;padding-left:20px}li{margin-bottom:6px;font-size:14.5px}
+  li.con{color:var(--warn)}
+  .summary{font-size:16px;margin:0 0 16px}
+  .opener{background:var(--soft);border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;font-size:14.5px;margin-bottom:14px}
+  .steps{font-size:13px;color:var(--muted)}
+  .steps div{padding:5px 0;border-bottom:1px solid var(--line)}
+  .steps b{color:var(--accent-2);font-weight:600}
+  .muted{color:var(--muted);font-size:13px}
+  footer{margin-top:32px;text-align:center;color:var(--muted);font-size:13px}
+  footer a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Lead <span class="g">Qualifier</span></h1>
+  <p class="sub">An inbound lead arrives. Before anyone looks at it, an agent reads the company's website, scores the fit against your ideal customer, explains why, and routes it.</p>
+  <p class="note">It <b>shows its working</b> — every tool call, and the evidence behind the score. An agent you can't audit is one you can't trust with your pipeline.</p>
+
+  <div class="panel">
+    <h2>Inbound lead</h2>
+    <div class="two">
+      <div><label>Name</label><input id="name" placeholder="Marcus Bell"></div>
+      <div><label>Email</label><input id="email" placeholder="ops@northwind.co"></div>
+    </div>
+    <div class="two">
+      <div><label>Company</label><input id="company" placeholder="Northwind Logistics"></div>
+      <div><label>Website</label><input id="website" placeholder="northwind.co"></div>
+    </div>
+    <label>Message</label>
+    <textarea id="message" rows="3" placeholder="What they wrote in your form…"></textarea>
+  </div>
+
+  <div class="btns">
+    <button class="primary" id="go">Qualify →</button>
+    <button id="ex1">Example: good fit</button>
+    <button id="ex2">Example: spam</button>
+  </div>
+  <p class="muted" id="mode"></p>
+
+  <div class="panel out" id="out"></div>
+
+  <footer>Built by <a href="https://github.com/realaweayomide">Ayomide Awe</a> · <a href="https://github.com/realaweayomide/lead-qualifier">source on GitHub</a></footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id)
+const esc = s => String(s == null ? '' : s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+
+const EX = {
+  good: { name:'Marcus Bell', email:'ops@zapier.com', company:'Zapier', website:'zapier.com',
+          message:'We need help automating our internal order process. What is your pricing and timeline? Looking to start this quarter.' },
+  spam: { name:'', email:'info@seoboost.ru', company:'', website:'',
+          message:'We offer guest post and backlink seo services to increase your ranking.' }
+}
+const fill = o => ['name','email','company','website','message'].forEach(k => $(k).value = o[k] || '')
+
+$('ex1').onclick = () => { fill(EX.good); go() }
+$('ex2').onclick = () => { fill(EX.spam); go() }
+$('go').onclick = go
+
+fetch('/api/status').then(r => r.json()).then(s => {
+  $('mode').textContent = s.agent ? '' : 'No API key set — scoring with explainable rules instead of the agent.'
+}).catch(() => {})
+
+async function go(){
+  const lead = { name:$('name').value, email:$('email').value, company:$('company').value,
+                 website:$('website').value, message:$('message').value }
+  if(!lead.email && !lead.company && !lead.website){
+    show('<p style="color:var(--err)">Give at least an email, company or website.</p>'); return
+  }
+  $('go').disabled = true; $('go').textContent = 'Researching…'
+  show('<p class="muted">Reading their website and scoring the fit… this can take a moment.</p>')
+  try{
+    const r = await fetch('/api/qualify', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ lead }), signal: AbortSignal.timeout(120000) })
+    const d = await r.json()
+    if(!r.ok) throw new Error(d.error || 'Failed')
+    render(d)
+  }catch(e){
+    show('<p style="color:var(--err)">' + esc(e.name === 'TimeoutError'
+      ? 'Took too long — the free host may be waking up. Try again.' : e.message) + '</p>')
+  }
+  $('go').disabled = false; $('go').textContent = 'Qualify →'
+}
+
+const show = h => { $('out').classList.add('show'); $('out').innerHTML = h }
+
+function render(d){
+  const v = d.verdict
+  let h = '<div class="verdict"><div class="score">' + v.score + '</div>' +
+    '<span class="tier ' + esc(v.tier) + '">' + esc(v.tier) + '</span>' +
+    '<span class="route">route to <b>' + esc(v.route_to) + '</b></span></div>'
+  if(v.company_summary) h += '<p class="summary">' + esc(v.company_summary) + '</p>'
+  if(v.reasons && v.reasons.length)
+    h += '<h2>Why</h2><ul>' + v.reasons.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>'
+  if(v.concerns && v.concerns.length)
+    h += '<h2>Against</h2><ul>' + v.concerns.map(x => '<li class="con">' + esc(x) + '</li>').join('') + '</ul>'
+  if(v.suggested_opener)
+    h += '<h2>Suggested opener</h2><div class="opener">' + esc(v.suggested_opener) + '</div>'
+  if(d.transcript && d.transcript.length)
+    h += '<h2>What the agent did (' + d.steps + ' steps)</h2><div class="steps">' +
+      d.transcript.map(t => '<div><b>' + esc(t.tool) + '</b> — ' + esc(t.summary) + '</div>').join('') + '</div>'
+  if(v.source === 'rules')
+    h += '<p class="muted" style="margin-top:14px">Scored by rules (no API key configured). With a key, an agent researches the company first and adds a summary and a suggested opener.</p>'
+  else if(d.disagreement > 20)
+    h += '<p class="muted" style="margin-top:14px">⚠ The agent and the rule-based score differ by ' + d.disagreement + ' points — worth a human look.</p>'
+  if(d.agentError)
+    h += '<p class="muted" style="margin-top:10px">Agent unavailable (' + esc(d.agentError) + ') — rule-based score shown.</p>'
+  show(h)
+}
+</script>
+</body>
+</html>
